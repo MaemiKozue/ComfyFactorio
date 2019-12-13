@@ -64,10 +64,11 @@ require "modules.autostash"
 -----------------------------
 
 ---- enable maps here ----
+require "maps.biter_battles_distorted.biter_battles"
 --require "maps.fish_defender.main"
 --require "maps.fish_defender_v1.fish_defender"
 --require "maps.biter_battles_v2.main"
-require "maps.mountain_fortress_v2.main"
+-- require "maps.mountain_fortress_v2.main"
 --require "maps.mountain_fortress"
 --require "maps.island_troopers.main"
 --require "maps.biter_hatchery.main"

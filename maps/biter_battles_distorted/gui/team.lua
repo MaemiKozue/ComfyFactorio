@@ -30,12 +30,12 @@ local function player_list_to_text (list)
 			local player = game.players[pid]
 
 			if not first then
-				first = false
 				plist = plist .. ", "
 			end
 
 			local str = "[color=green]"..player.name.."[/color]"
 			plist = plist .. str
+			first = false
 		end
 		plist = plist .. "[/color]"
 		plist = plist .. "\n"
@@ -44,12 +44,12 @@ local function player_list_to_text (list)
 			local player = game.players[pid]
 
 			if not first then
-				first = false
 				plist = plist .. ", "
 			end
 
 			local str = player.name
 			plist = plist .. str
+			first = false
 		end
 	end
 	return plist

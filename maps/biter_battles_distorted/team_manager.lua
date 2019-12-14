@@ -25,8 +25,8 @@ end
 local function can_join (pid, side)
 	local a = bb.teams[side]
 	local b = bb.teams[bb.other_side(side)]
-	local p = table.size(Teams.connected_players(a))
-	local q = table.size(Teams.connected_players(b))
+	local p = table_size(Teams.connected_players(a))
+	local q = table_size(Teams.connected_players(b))
 
 	return p <= q
 end

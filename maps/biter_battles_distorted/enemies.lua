@@ -128,9 +128,11 @@ local function set_biter_raffle_table (surface, biter_force_name)
 	if not biters[1] then return end
 
 	local raffle = {}
+	local size = 0
 	for _, e in pairs(biters) do
 		if math_random(1,3) == 1 then
-			raffle[#raffle +1] = e.name
+			size = size + 1
+			raffle[size] = e.name
 		end
 	end
 	this[biter_force_name].biter_raffle = raffle

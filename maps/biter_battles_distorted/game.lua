@@ -41,8 +41,8 @@ local const = {
 		south = "south"
 	},
 	spawn_position = {
-		north = {0, -32},
-		south = {0,  32}
+		north = {0, -44},
+		south = {0,  44}
 	},
 	surface_name = "biter_battles",
 	map_reveal_interval = 60*5, -- every 5 sec

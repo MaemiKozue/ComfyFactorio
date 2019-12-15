@@ -186,8 +186,9 @@ end
 
 local function ticking_work()
 	if not global.ctp then return end
-	local work = global.mws or 137 -- define the number of work per tick here (for copies, creations, deletions)
+	local work = global.mws or 512 -- define the number of work per tick here (for copies, creations, deletions)
 	-- 136.5333 is the number of work needed to finish 4*(32*32) operations over 30 ticks (spreading a chunk copy over 30 ticks)
+	-- 512 is one chunk every 4 ticks
 	local w = 0
 	local i = global.ctp.continue
 	local c = global.ctp[i]

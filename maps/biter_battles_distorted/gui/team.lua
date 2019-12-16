@@ -12,10 +12,12 @@ local function player_list_to_text (list)
 	local effective_players = {}
 	for pid, _ in pairs(list) do
 		local player = game.players[pid]
-		if player.spectator then
-			spectators[pid] = player
-		else
-			effective_players[pid] = player
+		if player.connected then
+			if player.spectator then
+				spectators[pid] = player
+			else
+				effective_players[pid] = player
+			end
 		end
 	end
 	local n_spec = table_size(spectators)
@@ -152,11 +154,12 @@ end
 
 
 local function update_all_playerlists ()
-	for _, player in pairs(game.players) do
-		local panel = Panel.get_panel(player)
-		local teams = panel.teams
-		for s, team in pairs(bb.teams) do
-			teams[s][s.."playerlist"].caption = player_list_to_text(team.players)
+	for s, team in pairs(bb.teams) do
+		local caption = player_list_to_text(team.players)
+		for _, player in pairs(game.connected_players) do
+			local panel = Panel.get_panel(player)
+			local teams = panel.teams
+			teams[s][s.."playerlist"].caption = caption
 		end
 	end
 end
@@ -169,6 +172,12 @@ local function on_player_joined_game (event)
 		create_team_ui (Panel.get_panel(player))
 	end
 end
+
+
+local function on_player_left_game (event)
+	update_all_playerlists()
+end
+
 
 local function on_team_joined (event)
 	local p = game.players[event.player_id]
@@ -225,6 +234,7 @@ end
 
 
 Event.add(defines.events.on_player_joined_game, on_player_joined_game)
+Event.add(defines.events.on_player_left_game, on_player_left_game)
 Event.add(bb.events.on_team_joined, on_team_joined)
 Event.add(bb.events.on_spectate, on_spectate)
 Event.add(bb.events.on_player_afk_spectate, on_spectate)

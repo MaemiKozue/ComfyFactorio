@@ -46,7 +46,7 @@ local function to_hms (ticks)
 end
 
 
-local function time_caption (ticks)
+local function time_format (ticks)
 	local h, m, s = to_hms(ticks)
 	return string.format("%02d:%02d:%05.2f", h, m, s)
 end
@@ -62,16 +62,15 @@ local function get_shadow (player)
 end
 
 
-local function update_timer (header)
-	local state = bb.get_state()
+local function timer_caption ()
+	local time = bb.time()
+	return time and time_format(time)
+		or "Game has not started yet"
+end
 
-	if state == bb.states.WAITING then
-		header.timer.caption = "Game has not started yet"
-	elseif state == bb.states.RUNNING then
-		header.timer.caption = time_caption(game.tick - bb.get_time_start())
-	else
-		header.timer.caption = time_caption(bb.get_time_stop() - bb.get_time_start())
-	end
+
+local function update_timer (header, caption)
+	header.timer.caption = caption
 end
 
 
@@ -85,12 +84,47 @@ local function create_timer (header)
 end
 
 
+local function get_distorsion_timers ()
+	local formatted_timers = {}
+	local start = Distorsions.last_start
+	local current = game.tick
+	local first = true
+
+	for k, _ in Distorsions.list():iterator() do
+		local h, m, s
+		if not first then
+			h, m, s = to_hms(start + (k-1)*Distorsions.distorsion_length - current)
+		else
+			h, m, s = to_hms(start + k*Distorsions.distorsion_length - current)
+		end
+		formatted_timers[k] = (h == 0 and string.format("%2d:%02d", m, s))
+			or string.format("%d:%2d:%02d", h, m, s)
+		first = false
+	end
+
+	return formatted_timers
+end
+
+
+-- timers : array of timers, with timers[k] the distorsion of key k
+local function update_distorsion_timers (header, formatted_timers)
+	local first = true
+	for k, _ in Distorsions.list():iterator() do
+		if not first then
+			local dis = header.distorsion.list.children[k]
+			dis.time.caption = formatted_timers[k]
+		end
+		first = false
+	end
+end
+
+
 local function update_distorsion_list (header)
 	if bb.get_state() ~= bb.states.RUNNING then return end
 	local elem = header.distorsion.list
 	elem.clear()
-	local start = Distorsions.last_start
 	local first = true
+	local formatted_timers = get_distorsion_timers()
 	for k, entry in Distorsions.list():iterator() do
 		local dis = entry.distorsion
 		local f = elem.add{
@@ -100,20 +134,18 @@ local function update_distorsion_list (header)
 		}
 		f.style.horizontal_align = "center"
 
-		-- Remaining time before start
-		local h, m, s
-		if not first then
-			h, m, s = to_hms(start + (k-1)*Distorsions.distorsion_length - game.tick)
-		else
-			h, m, s = to_hms(start + k*Distorsions.distorsion_length - game.tick)
-		end
-		local timer = nil
+		local timer
 		if not first then
 			timer = f.add{
 				type = "label",
 				name = "time",
-				caption = (h == 0 and string.format("%2d:%02d", m, s))
-					or string.format("%d:%2d:%02d", h, m, s)
+				caption = formatted_timers[k]
+			}
+		else
+			timer = f.add{
+				type = "label",
+				name = "time_message",
+				caption = "Currently:"
 			}
 		end
 		local name = f.add{
@@ -175,8 +207,8 @@ end
 local function update_header_location (header)
 	local player = header.gui.player
 	local shadow = get_shadow(player)
-	if header == shadow then return end
 	shadow.force_auto_center()
+	if header == shadow then return end
 	header.location = {
 		shadow.location.x,
 		-- player.display_resolution.width / 2,
@@ -219,42 +251,75 @@ local function create_header (player)
 	header.style.horizontal_align = "center"
 	shadow.style.horizontal_align = "center"
 
-	update_header_location(header)
-	update_header_location(shadow)
-
 	create_game_type(header)
 	create_game_type(shadow)
 	create_timer(header)
 	create_timer(shadow)
 	create_distorsion_list(header)
 	create_distorsion_list(shadow)
+
+	update_header_location(header)
+	update_header_location(shadow)
 end
 
 
 local function on_player_joined_game (event)
 	local player = game.players[event.player_index]
+
 	if player.online_time == 0 then
 		create_header(player)
-		if bb.get_state() ~= bb.states.WAITING then
-			local header = get_header(player)
-			local shadow = get_shadow(player)
-			header.distorsion.visible = true
-			shadow.distorsion.visible = true
-		end
+	end
+
+	local header = get_header(player)
+	local shadow = get_shadow(player)
+	local caption = timer_caption()
+
+	if bb.get_state() ~= bb.states.WAITING then
+		header.distorsion.visible = true
+		shadow.distorsion.visible = true
+	end
+
+	-- Update all
+	update_timer(header, caption)
+	update_timer(shadow, caption)
+	update_distorsion_list(header)
+	update_distorsion_list(shadow)
+	update_header_location(header)
+	update_header_location(shadow)
+end
+
+
+local function on_distorsion_changed ()
+	for _, player in pairs(game.connected_players) do
+		local header = get_header(player)
+		local shadow = get_shadow(player)
+		update_distorsion_list(header)
+		update_distorsion_list(shadow)
+		update_header_location(header)
+		update_header_location(shadow)
 	end
 end
 
 
-local function on_tick ()
-	for pid, player in pairs(game.players) do
+local function on_second ()
+	if bb.get_state() ~= bb.states.RUNNING then return end
+	local formatted_timers = get_distorsion_timers()
+	for _, player in pairs(game.connected_players) do
 		local header = get_header(player)
 		local shadow = get_shadow(player)
-		update_timer(header)
-		update_timer(shadow)
-		update_header_location(header)
-		update_header_location(shadow)
-		update_distorsion_list(header)
-		update_distorsion_list(shadow)
+		update_distorsion_timers(header, formatted_timers)
+		update_distorsion_timers(shadow, formatted_timers)
+	end
+end
+
+
+local function update_all_players_game_timer ()
+	local caption = timer_caption()
+	for _, player in pairs(game.connected_players) do
+		local header = get_header(player)
+		local shadow = get_shadow(player)
+		update_timer(header, caption)
+		update_timer(shadow, caption)
 	end
 end
 
@@ -267,15 +332,39 @@ local function on_player_display_resolution_changed (event)
 end
 
 local function on_game_started ()
-	for pid, player in pairs(game.players) do
+	for _, player in pairs(game.connected_players) do
 		local header = get_header(player)
 		local shadow = get_shadow(player)
+		update_distorsion_list(header)
+		update_distorsion_list(shadow)
+		update_header_location(header)
+		update_header_location(shadow)
 		header.distorsion.visible = true
 		shadow.distorsion.visible = true
 	end
 end
 
+
+local function on_gui_location_changed (event)
+	local elem = event.element
+	if not elem.valid then return end
+
+	local player = game.players[event.player_index]
+	local shadow = get_shadow(player)
+
+	if elem ~= shadow then return end
+
+	local header = get_header(player)
+	update_header_location(header)
+	update_header_location(shadow)
+end
+
+
+Event.add(defines.events.on_gui_location_changed, on_gui_location_changed)
 Event.add(defines.events.on_player_display_resolution_changed, on_player_display_resolution_changed)
 Event.add(defines.events.on_player_joined_game, on_player_joined_game)
-Event.add(defines.events.on_tick, on_tick)
+Event.add(bb.events.on_distorsion_started, on_distorsion_changed)
+Event.add(bb.events.on_distorsion_finished, on_distorsion_changed)
 Event.add(bb.events.on_game_started, on_game_started)
+Event.on_nth_tick(5, update_all_players_game_timer)
+Event.on_nth_tick(60, on_second)

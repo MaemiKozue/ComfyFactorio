@@ -126,7 +126,7 @@ local function update_distorsion_list (header)
 	local first = true
 	local formatted_timers = get_distorsion_timers()
 	for k, entry in Distorsions.list():iterator() do
-		local dis = entry.distorsion
+		local dis = Distorsions.distorsions[entry.distorsion_id].distorsion
 		local f = elem.add{
 			type = "flow",
 			name = k,

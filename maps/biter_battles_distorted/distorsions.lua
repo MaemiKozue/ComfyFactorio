@@ -14,6 +14,7 @@ Global.register(this, function (t) this = t end)
 
 local const = {
 	default_behaviour = require "maps.biter_battles_distorted.distorsions.default",
+	default_distorsion_id = 1, -- refer to all_distorsions
 	distorsion_length = 60*60*15, -- 15 min
 	types = {
 		none = 0,
@@ -36,15 +37,15 @@ end
 
 local function add_default ()
 	this.queue:add{
-		distorsion = const.default_behaviour,
+		distorsion_id = const.default_distorsion_id,
 		type = const.types.none
 	}
 end
 
 
-local function add (distorsion)
+local function add (index)
 	this.queue:add{
-		distorsion = distorsion,
+		distorsion_id = index,
 		type = const.types.user
 	}
 end
@@ -64,7 +65,7 @@ local function shadow_events ()
 				if not current then return end
 				local handler
 				if current.type == const.types.user then
-					handler = current.distorsion[k]
+					handler = const.distorsions[current.distorsion_id].distorsion[k]
 				else
 					handler = const.default_behaviour[k]
 				end
@@ -83,7 +84,7 @@ local function queue_new_distorsion (queue)
 	if distorsion.name == "default" then
 		add_default()
 	else
-		add(distorsion.distorsion)
+		add(idx)
 	end
 end
 
@@ -91,13 +92,13 @@ end
 local function skip ()
 	local prev = this.queue:pop()
 	script.raise_event(bb.events.on_distorsion_finished, {
-		distorsion = prev.distorsion
+		distorsion_id = prev.distorsion_id
 	})
 	queue_new_distorsion(this.queue)
 	this.last_start = game.tick
 	local next = this.queue:last_added()
 	script.raise_event(bb.events.on_distorsion_started, {
-		distorsion = next.distorsion
+		distorsion_id = next.distorsion_id
 	})
 end
 
@@ -123,14 +124,14 @@ local function on_tick ()
 		end
 
 		script.raise_event(bb.events.on_distorsion_finished, {
-			distorsion = prev.distorsion
+			distorsion_id = prev.distorsion_id
 		})
 
 		local next = this.queue:peek()
 		if next.type == const.types.user then
 			this.last_start = game.tick
 			script.raise_event(bb.events.on_distorsion_started, {
-				distorsion = next.distorsion
+				distorsion_id = next.distorsion_id
 			})
 		end
 	end
@@ -141,7 +142,7 @@ local function on_init ()
 	shadow_events ()
 	this.queue = Queue.new()
 	this.queue:add({
-		distorsion = const.default_behaviour,
+		distorsion_id = const.default_distorsion_id,
 		type = const.types.none
 	})
 end

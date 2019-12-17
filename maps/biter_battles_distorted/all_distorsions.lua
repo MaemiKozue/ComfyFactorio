@@ -8,10 +8,11 @@ local list = {
 }
 
 local distorsions = {}
-
+local size = 0
 for _, name in pairs(list) do
+	size = size + 1
 	local path = prefix .. "." .. name
-	distorsions[#distorsions+1] = {
+	distorsions[size] = {
 		name = name,
 		distorsion = require(path)
 	}

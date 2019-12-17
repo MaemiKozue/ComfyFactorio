@@ -98,13 +98,13 @@ local events = {
 	-- When a distorsion starts
 	on_distorsion_started = script.generate_event_name(),
 	-- event = {
-	-- 	distorsion : the distorsion that started
+	-- 	distorsion_id : the id of the distorsion that started
 	-- }
 
 	-- When a distorsion finishes
 	on_distorsion_finished = script.generate_event_name(),
 	-- event = {
-	-- 	distorsion : the distorsion that finished
+	-- 	distorsion_id : the id of the distorsion that started
 	-- }
 
 	-- When a chunk has been mirrored

@@ -120,6 +120,7 @@ end
 
 
 local function update_distorsion_list (header)
+	if bb.get_state() == bb.states.WAITING then return end
 	local elem = header.distorsion.list
 	elem.clear()
 	local first = true

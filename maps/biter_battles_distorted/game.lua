@@ -157,6 +157,9 @@ local function create_forces ()
 		force.set_friend("player", true)
 		player_force.set_friend(force, true)
 		force.set_spawn_position(const.spawn_position[v], const.surface_name)
+
+		-- Research queue
+		force.research_queue_enabled = true
 	end
 
 end

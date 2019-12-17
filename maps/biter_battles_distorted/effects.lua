@@ -55,6 +55,7 @@ end
 
 
 local function create_fireworks_rocket(surface, position)
+	local math_random = math.random -- quickfix for desync
 	local particles = {"coal-particle", "copper-ore-particle", "iron-ore-particle", "stone-particle"}
 	local particle = particles[math_random(1, #particles)]
 	local m = math_random(16, 36)
@@ -98,9 +99,10 @@ local function fireworks(surface, center_pos)
 
 	local duration = 7200
 	for t = 2, duration, 2 do
-		if not global.on_tick_schedule[game.tick + t] then global.on_tick_schedule[game.tick + t] = {} end
+		local date = game.tick + t
+		if not global.on_tick_schedule[date] then global.on_tick_schedule[date] = {} end
 		local pos = positions[math_random(1, #positions)]
-		global.on_tick_schedule[game.tick + t][#global.on_tick_schedule[game.tick + t] + 1] = {
+		global.on_tick_schedule[date][#global.on_tick_schedule[date] + 1] = {
 			func = create_fireworks_rocket,
 			args = {
 				surface,

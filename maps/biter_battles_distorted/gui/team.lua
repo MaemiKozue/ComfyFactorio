@@ -75,7 +75,7 @@ local function create_team_side (hook, side)
 	local team_ui = hook.add{
 		type = "frame",
 		name = side,
-		caption = team.name,
+		-- caption = team.name,
 		direction = "vertical"
 	}
 	-- Team ID

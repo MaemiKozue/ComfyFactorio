@@ -24,6 +24,11 @@ local function create_action_menu (player)
 		caption = "Actions"
 	}
 
+	frame.location = {
+		x = 180,
+		y = 50
+	}
+
 	local first_row = {
 		"automation-science-pack",
 		"logistic-science-pack",

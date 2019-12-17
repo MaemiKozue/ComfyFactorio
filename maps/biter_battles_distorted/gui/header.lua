@@ -48,7 +48,7 @@ end
 
 local function time_format (ticks)
 	local h, m, s = to_hms(ticks)
-	return string.format("%02d:%02d:%05.2f", h, m, s)
+	return string.format("%02d:%02d:%02d", h, m, s)
 end
 
 
@@ -366,5 +366,5 @@ Event.add(defines.events.on_player_joined_game, on_player_joined_game)
 Event.add(bb.events.on_distorsion_started, on_distorsion_changed)
 Event.add(bb.events.on_distorsion_finished, on_distorsion_changed)
 Event.add(bb.events.on_game_started, on_game_started)
-Event.on_nth_tick(5, update_all_players_game_timer)
+Event.on_nth_tick(60, update_all_players_game_timer)
 Event.on_nth_tick(60, on_second)

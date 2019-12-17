@@ -22,7 +22,9 @@ local function player_list_to_text (list)
 	end
 	local n_spec = table_size(spectators)
 	local n_play = table_size(effective_players)
-	local plist = "Players (".."[color=green]"..n_play.."[/color]".."|"..n_spec.."): "
+	local plist = "Players (".."[color=green]"..n_play.."[/color]".."|"..n_spec..")"
+	if plist then return plist end
+	-- local plist = "Players (".."[color=green]"..n_play.."[/color]".."|"..n_spec.."): "
 	local first = true
 	if members == 0 then
 		plist = plist .. "None"

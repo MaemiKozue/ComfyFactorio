@@ -233,6 +233,15 @@ local function create_game_type (header)
 end
 
 
+local function create_toggle_button (player)
+	player.gui.top.add{
+		type = "button",
+		name = "bb_header_toggle",
+		caption = "Toggle top info"
+	}
+end
+
+
 local function create_header (player)
 	local header = player.gui.screen.add{
 		type = "flow",
@@ -250,6 +259,8 @@ local function create_header (player)
 
 	header.style.horizontal_align = "center"
 	shadow.style.horizontal_align = "center"
+
+	create_toggle_button(player)
 
 	create_game_type(header)
 	create_game_type(shadow)
@@ -360,6 +371,17 @@ local function on_gui_location_changed (event)
 end
 
 
+local function on_gui_click (event)
+	if not event.element.valid then return end
+	if event.element.name ~= "bb_header_toggle" then return end
+
+	local player = game.players[event.player_index]
+	local header = get_header(player)
+	header.visible = not header.visible
+end
+
+
+Event.add(defines.events.on_gui_click, on_gui_click)
 Event.add(defines.events.on_gui_location_changed, on_gui_location_changed)
 Event.add(defines.events.on_player_display_resolution_changed, on_player_display_resolution_changed)
 Event.add(defines.events.on_player_joined_game, on_player_joined_game)

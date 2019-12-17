@@ -89,8 +89,16 @@ end
 
 
 local function skip ()
-	this.queue:pop()
+	local prev = this.queue:pop()
+	script.raise_event(bb.events.on_distorsion_finished, {
+		distorsion = prev.distorsion
+	})
 	queue_new_distorsion(this.queue)
+	this.last_start = game.tick
+	local next = this.queue:last_added()
+	script.raise_event(bb.events.on_distorsion_started, {
+		distorsion = next.distorsion
+	})
 end
 
 

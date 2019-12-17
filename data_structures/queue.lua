@@ -34,6 +34,10 @@ function Module.pop (q)
 	return x
 end
 
+function Module.last_added (q)
+	return q[q.last]
+end
+
 function Module.add (q, x)
 	q.last = q.last+1
 	q[q.last] = x

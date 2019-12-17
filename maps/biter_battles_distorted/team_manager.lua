@@ -25,10 +25,22 @@ end
 local function can_join (pid, side)
 	local a = bb.teams[side]
 	local b = bb.teams[bb.other_side(side)]
-	local p = table_size(Teams.connected_players(a))
-	local q = table_size(Teams.connected_players(b))
+	local cpa = Teams.connected_players(a)
+	local cpb = Teams.connected_players(b)
 
-	return p <= q
+	local na, nb = 0, 0
+	for _, player in pairs(cpa) do
+		if not player.spectator then
+			na = na + 1
+		end
+	end
+	for _, player in pairs(cpb) do
+		if not player.spectator then
+			nb = nb + 1
+		end
+	end
+
+	return na <= nb
 end
 
 

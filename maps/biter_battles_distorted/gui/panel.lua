@@ -6,10 +6,14 @@ local const = {
 
 local function create_panel (pid)
 	local player = game.players[pid]
-	local frame = player.gui.left.add{
+	local frame = player.gui.screen.add{
 		type = "frame",
 		name = const.panel_name,
-		-- caption = "Biter Battles"
+		caption = "Biter Battles"
+	}
+	frame.location = {
+		x =  0,
+		y = 40
 	}
 	-- frame.auto_center = true
 end
@@ -40,7 +44,7 @@ local function on_gui_click (event)
 	if event.element.name ~= "bb_toggle" then return end
 
 	local player = game.players[event.player_index]
-	local panel = player.gui.left[const.panel_name]
+	local panel = player.gui.screen[const.panel_name]
 	panel.visible = not panel.visible
 end
 
@@ -48,5 +52,5 @@ Event.add(defines.events.on_player_joined_game, on_player_joined_game)
 Event.add(defines.events.on_gui_click, on_gui_click)
 
 return {
-	get_panel = function (player) return player.gui.left[const.panel_name] end
+	get_panel = function (player) return player.gui.screen[const.panel_name] end
 }

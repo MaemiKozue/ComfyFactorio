@@ -632,20 +632,29 @@ local function on_entity_died (event)
 end
 
 
+local tick_minute_functions = {
+	[300 * 1] = raise_evo,
+	[300 * 2] = destroy_inactive_biters,
+	[300 * 3] = main_attack,
+	[300 * 4] = send_near_biters_to_silo,
+	[300 * 5] = destroy_old_age_biters,
+}
+
+
 local function on_tick ()
 	if bb.get_state() ~= bb.states.RUNNING then return end
+	local tick = game.tick
+
 	-- each second
-	if game.tick % 60 ~= 0 then return end
+	if tick % 60 ~= 0 then return end
 
 	natural_threat_increase()
 
-	-- each minute
-	if game.tick % 3600 ~= 0 then return end
-	raise_evo()
-	destroy_inactive_biters()
-	main_attack()
-	send_near_biters_to_silo()
-	destroy_old_age_biters()
+	-- other time events
+	local key = tick % 3600
+	if tick_minute_functions[key] then
+		tick_minute_functions[key]()
+	end
 
 end
 

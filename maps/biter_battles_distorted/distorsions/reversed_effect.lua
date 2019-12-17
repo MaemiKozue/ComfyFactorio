@@ -15,6 +15,7 @@ local function on_science_sent (event)
 	local food = event.type
 	local flask_amount = event.count
 	Enemies.set_evo_and_threat(flask_amount, food, biter_force_name)
+	game.print("It's reversed effect, they sent to their own team :(")
 end
 
 

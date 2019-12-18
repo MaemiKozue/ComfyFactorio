@@ -6,6 +6,20 @@ local Enemies = require "maps.biter_battles_distorted.enemies"
 local Panel = require "maps.biter_battles_distorted.gui.panel"
 
 
+local function format_statistics ()
+	local format = {}
+	for _, side in pairs(bb.sides) do
+		local b_name = side.."_biters"
+		local biters_data = Enemies[b_name]
+		format[b_name] = {
+			evo = string.format("Evo: %4.1f%%" ,biters_data.evo*100),
+			threat = string.format("Threat: %d", biters_data.threat)
+		}
+	end
+	return format
+end
+
+
 local function player_list_to_text (list)
 	local members = table_size(list)
 	local spectators = {}
@@ -145,12 +159,12 @@ local function create_team_ui (panel)
 end
 
 
-local function update_enemies_statistics (hook)
+local function update_enemies_statistics (hook, formatted_stats)
 	for _, side in pairs(bb.sides) do
-		local biters_data = Enemies[side.."_biters"]
+		local b_name = side.."_biters"
 		local elem = hook[side].stats
-		elem[side.."evo"].caption = string.format("Evo: %4.1f%%" ,biters_data.evo*100)
-		elem[side.."threat"].caption = string.format("Threat: %d", biters_data.threat)
+		elem[side.."evo"].caption = formatted_stats[b_name].evo
+		elem[side.."threat"].caption = formatted_stats[b_name].threat
 	end
 end
 
@@ -172,6 +186,11 @@ local function on_player_joined_game (event)
 
 	if player.online_time == 0 then
 		create_team_ui (Panel.get_panel(player))
+	end
+	update_all_playerlists()
+
+	if bb.get_state() ~= bb.states.WAITING then
+		update_enemies_statistics(Panel.get_panel(player), format_statistics())
 	end
 end
 
@@ -227,10 +246,11 @@ end
 
 
 local function on_stats_changed ()
-	for _, player in pairs(game.players) do
+	local formatted_stats = format_statistics()
+	for _, player in pairs(game.connected_players) do
 		local panel = Panel.get_panel(player)
 		local hook = panel.teams
-		update_enemies_statistics(hook)
+		update_enemies_statistics(hook, formatted_stats)
 	end
 end
 
